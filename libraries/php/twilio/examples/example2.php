@@ -12,10 +12,10 @@
 		array(
 			$response->GetVerb(TwilioResponse::V_SAY, 'Thank you for calling. Please press 1 for more options'),
 			$response->GetVerb(TwilioResponse::V_PAUSE),
-			$response->GetVerb(TwilioResponse::V_SAY, 'Go on.  press something')
+			$response->GetVerb(TwilioResponse::V_SAY, 'Go on. Press something')
 		),
 		array(
-			'action'	=> '/handle-response.php',
+			'action'	=> '/handle-response.php?a=b&c=d', // note that the & here must be encoded... the library takes care of it!
 			'numDigits'	=> 1
 		)
 	);
