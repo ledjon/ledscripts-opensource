@@ -81,8 +81,18 @@ class TwilioResponse
 		return $r;
 	}
 	
-	public function Respond()
+	public function Respond($sendHeader = true)
 	{
+		// try to force the xml data type
+		// this is generally unneeded by Twilio, but nice to have
+		if($sendHeader)
+		{
+			if(!headers_sent())
+			{
+				header("Content-type: text/xml");
+			}
+		}
+		
 		echo $this->GetResponse();
 	}
 }
