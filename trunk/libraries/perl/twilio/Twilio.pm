@@ -60,10 +60,13 @@ package TwilioRestClient;
 
 use Data::Dumper;
 use LWP::UserAgent;
+use LWP::Debug qw(+);
 use HTTP::Request;
 use HTTP::Response;
 use URI::Escape;
 use Encode;
+
+LWP::Debug::level('+conns');
 
 sub new 
 {
@@ -112,6 +115,7 @@ sub request
 
 	if(uc($method) eq 'POST')
 	{
+    	$request->header('Content-Type', 'application/x-www-form-urlencoded');
 		$request->content( $encoded );
 	}
 
