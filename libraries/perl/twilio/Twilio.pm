@@ -94,7 +94,7 @@ sub request
 	{
 		$encoded .= sprintf("%s=%s&", $k, uri_escape($vars{$k}));
 	}
-	$encoded = substr($encoded, 0, length($encoded));
+	$encoded = substr($encoded, 0, length($encoded)-1);
 
 	# construct full url
 	my $url = sprintf("%s/%s", $this->{'Endpoint'}, $path);
