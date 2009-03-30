@@ -92,7 +92,7 @@ sub request
 
 	for my $k (keys %vars)
 	{
-		$encoded .= sprintf("%s=%s", $k, uri_escape($vars{$k}));
+		$encoded .= sprintf("%s=%s&", $k, uri_escape($vars{$k}));
 	}
 	$encoded = substr($encoded, 0, length($encoded));
 
@@ -114,7 +114,6 @@ sub request
 	{
 		$request->content( $encoded );
 	}
-
 
 	my $response = $ua->request($request);
 
