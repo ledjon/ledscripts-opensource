@@ -7,7 +7,7 @@ package TwilioRestResponse;
 use strict;
 use HTTP::Response;
 use XML::Simple;
-use Data::Dumper;
+#use Data::Dumper;
 
 sub new
 {
@@ -58,15 +58,13 @@ sub parseResponse
 
 package TwilioRestClient;
 
-use Data::Dumper;
+#use Data::Dumper;
 use LWP::UserAgent;
-use LWP::Debug qw(+);
+#use LWP::Debug qw(+);
 use HTTP::Request;
 use HTTP::Response;
 use URI::Escape;
 use Encode;
-
-LWP::Debug::level('+conns');
 
 sub new 
 {
