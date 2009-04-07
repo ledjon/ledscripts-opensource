@@ -4,11 +4,11 @@ use strict;
 use Twilio;
 use Data::Dumper;
 
-my $sid = 'AC6d282c890cb109919ad4cf8c3a598b2b'; 
-my $token = 'f65aef15e5d11758dbca34808d45e9ef';
+my $sid = 'your-twilio-sid'; 
+my $token = 'your-twilio-secret-token';
 
-my $sourcePhone = '8778595978';
-my $destPhone = '3175080013';
+my $sourcePhone = 'xxxxxxxx'; # number to display on callerid
+my $destPhone = 'xxxxxxxx'; # number to dial
 
 my $req = new TwilioRestClient($sid, $token);
 
