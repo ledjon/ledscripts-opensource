@@ -3,7 +3,6 @@
 use strict;
 use lib '/usr/local/text2phone/dev/src/lib/twilio';
 use Twilio;
-use Data::Dumper;
 
 my $response = new TwilioResponse();
 
