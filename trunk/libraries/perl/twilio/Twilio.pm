@@ -1,3 +1,16 @@
+############################
+# Twilio REST interface
+#  and Response objects
+# 
+# In other words, all programatic twilio stuff you'll ever
+# need for Perl!
+#
+# by Jon Coulter
+# ledjon <-at-> ledscripts.com
+# 
+# See included examples on usage
+############################
+
 package Twilio;
 
 use strict;
