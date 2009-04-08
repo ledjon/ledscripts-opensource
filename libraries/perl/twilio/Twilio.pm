@@ -7,7 +7,6 @@ package TwilioRestResponse;
 use strict;
 use HTTP::Response;
 use XML::Simple;
-#use Data::Dumper;
 
 sub new
 {
@@ -58,7 +57,6 @@ sub parseResponse
 
 package TwilioRestClient;
 
-#use Data::Dumper;
 use LWP::UserAgent;
 #use LWP::Debug qw(+);
 use HTTP::Request;
@@ -113,13 +111,231 @@ sub request
 
 	if(uc($method) eq 'POST')
 	{
-    	$request->header('Content-Type', 'application/x-www-form-urlencoded');
+		$request->header('Content-Type', 'application/x-www-form-urlencoded');
 		$request->content( $encoded );
 	}
 
 	my $response = $ua->request($request);
 
 	return new TwilioRestResponse($request, $response);
+}
+
+package TwilioResponseVerb;
+
+use strict;
+use HTML::Entities;
+
+sub new
+{
+	my $class = shift;
+	my $verb = shift;
+	my $content = shift || '';
+	my %attributes = @_;
+
+	my $this = bless( { }, $class );
+	
+	$this->{'mVerb'} = $verb;
+	$this->{'mContent'} = $content;
+	$this->{'mAttributes'} = \%attributes;
+
+	return $this;
+}
+
+sub GetVerb
+{
+	my $this = shift;
+	my $encoded = shift || 1;
+
+	return $encoded ? encode($this->{'mVerb'}) : $this->{'mVerb'};
+}
+
+sub GetRawContent
+{
+	return shift->{'mContent'};
+}
+
+sub GetContent
+{
+	my $this = shift;
+
+	my $content = '';
+
+	if(! (ref($this->{'mContent'}) eq 'ARRAY') )
+	{
+		if( ref($this->{'mContent'})
+			&& $this->{'mContent'}->is_a('TwilioResponseVerb'))
+		{
+			$this->{'mContent'} = [ $this->{'mContent'} ];
+		}
+	}
+
+	if( ref($this->{'mContent'}) eq 'ARRAY' )
+	{
+		for my $v ( @{$this->{'mContent'}})
+		{
+			$content .= $v->Render();
+		}
+	}
+	else
+	{
+		$content .= encode( $this->{'mContent'} );
+	}
+
+	return $content;
+}
+
+sub GetAttributes
+{
+	return shift->{'mAttributes'};
+}
+
+sub GetAtributesAsString
+{
+	my $this = shift;
+	my $encoded = shift || 1;
+
+	my $attr = '';
+
+	for my $k (keys %{ $this->{'mAttributes'} })
+	{
+		my $v = $this->{'mAttributes'}->{$k};
+
+		$attr .= ' ';
+
+		$attr .= sprintf('%s="%s"', $k, addslashes($encoded ? encode($v) : $v));
+	}
+
+	return $attr;
+}
+
+sub Render
+{
+	my $this = shift;
+
+	return sprintf("<%s%s>%s</%s>", $this->GetVerb(), $this->GetAtributesAsString(), $this->GetContent(), $this->GetVerb());
+}
+
+sub encode
+{
+	return encode_entities(shift);
+}
+
+sub addslashes
+{
+	my $v = shift;
+
+	$v =~ s!\\!\\\\!g;
+
+	return $v;
+}
+
+
+
+package TwilioResponse;
+
+use strict;
+
+use constant V_SAY		=> 'Say';
+use constant V_GATHER	=> 'Gather';
+use constant V_PLAY		=> 'Play';
+use constant V_RECORD	=> 'Record';
+use constant V_DIAL		=> 'Dial';
+use constant V_REDIRECT	=> 'Redirect';
+use constant V_PAUSE	=> 'Pause';
+use constant V_HANGUP	=> 'Hangup';
+
+sub new 
+{
+	return bless( { 'mParts' => [] }, shift @_ );
+}
+
+sub AddVerb
+{
+	my $this = shift;
+	my $verb = shift;
+	my $content = shift;
+	my %attributes = @_;
+
+	push( @{$this->{'mParts'}}, $this->GetVerb( $verb, $content, %attributes ) );
+}
+
+sub GetVerb
+{
+	my $this = shift;
+	my $verb = shift;
+	my $content = shift || '';
+	my %attributes = @_;
+
+	return new TwilioResponseVerb($verb, $content, %attributes);
+}
+
+sub Say
+{
+	shift->AddVerb(V_SAY, @_);
+}
+
+sub Gather 
+{
+	shift->AddVerb(V_GATHER, @_);
+}
+
+sub Play 
+{
+	shift->AddVerb(V_PLAY, @_);
+}
+
+sub Dial
+{
+	shift->AddVerb(V_DIAL, @_);
+}
+
+sub Redirect
+{
+	shift->AddVerb(V_REDIRECT, @_);
+}
+
+sub Record 
+{
+	shift->AddVerb(V_RECORD, undef, @_);
+}
+
+sub Hangup
+{
+	shift->AddVerb(V_HANGUP, undef, @_);
+}
+
+sub Pause
+{
+	shift->AddVerb(V_PAUSE, undef, @_);
+}
+
+sub GetResponse
+{
+	my $this = shift;
+
+	my $r = '<Response>';
+	
+	for my $verb ( @{$this->{'mParts'}} )
+	{
+		$r .= $verb->Render();
+	}
+
+	$r .= '</Response>';
+
+	return $r;
+}
+
+sub Respond
+{
+	my $this = shift;
+	my $sendHeader = shift || 1;
+
+	if( $sendHeader )
+	{
+		print "Content-type: text/xml\n\n";
+	}
+
+	print $this->GetResponse();
 }
 
 
