@@ -230,7 +230,12 @@ sub Render
 
 sub encode
 {
-	return encode_entities(shift);
+	my $enc = encode_entities(shift);
+
+	# known baddies
+	$enc =~ s/&reg;//g;
+
+	return $enc;
 }
 
 sub addslashes
